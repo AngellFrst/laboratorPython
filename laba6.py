@@ -61,7 +61,7 @@ class Session(Kinoteatr):
     '''Функция для получения погоды'''
 
     def get_weather(self):
-        api_key = "b4f8bb70b3ffbeb08a236b40e0e9a507"  # Укажите ваш API-ключ от OpenWeatherMap
+        api_key = "b4f8bb70b3ffbeb08a236b40e0e9a507" 
         city = "Ульяновск"
         base_url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&lang=ru"
 
@@ -70,7 +70,7 @@ class Session(Kinoteatr):
             weather_data = response.json()
 
             if response.status_code == 200 and weather_data.get("cod") != "404":
-                temp = round(weather_data["main"]["temp"] - 273.15, 1)  # Перевод температуры в градусы Цельсия
+                temp = round(weather_data["main"]["temp"] - 273.15, 1) 
                 weather_desc = weather_data["weather"][0]["description"]
                 humidity = weather_data["main"]["humidity"]
                 pressure = weather_data["main"]["pressure"]
@@ -166,7 +166,7 @@ class Application(tk.Tk):
             ("Что сегодня в кинотеатре?", self.run_program5)
 =======
             ("Что сегодня в кинотеатре?", self.run_program5),
-            ("Погода в Ульяновске", self.run_weather_program)  # Добавлен пункт для погоды
+            ("Погода в Ульяновске", self.run_weather_program)  
 >>>>>>> newbranch
         ]
 
