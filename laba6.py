@@ -2,35 +2,65 @@ import tkinter as tk
 from tkinter import messagebox, filedialog
 import random
 import os
-from PIL import Image
-# import ttkbootstrap as ttk
+import requests
 
 print('Программа открыта')
 
-#кинотеартр
+# Кинотеатр
+'''Работа с методом в программе кинотеатр'''
 
 class Kinoteatr:
     def __init__(self, nameFilms, yerFilm=2015, cena=150):
-        self.nameFilms = nameFilms  
-        self.yerFilm = yerFilm  
-        self.cena = cena  
+        self.nameFilms = nameFilms
+        self.yerFilm = yerFilm
+        self.cena = cena
 
     def filmTiket(self):
         return f"Фильм: {self.nameFilms} / Год: {self.yerFilm} / Цена: {self.cena} рублей"
 
+'''Работа с классами (дотсаем сезоны) в программе кинотеатр'''
 
 class Session(Kinoteatr):
     def __init__(self, nameFilms, yerFilm=2015, cena=150, date="7-03-2001", start_time="19:00"):
         super().__init__(nameFilms, yerFilm, cena)
-        self.date = date  
-        self.start_time = start_time  
+        self.date = date
+        self.start_time = start_time
 
     def session_info(self):
         film_info = self.filmTiket()
         return f"Сеанс фильма {self.nameFilms} состоится {self.date} в {self.start_time}.\n{film_info}"
 
+    # Функция для получения погоды
+    '''Функция для получения погоды'''
 
-#натройки приложения
+    def get_weather(self):
+        api_key = "b4f8bb70b3ffbeb08a236b40e0e9a507"  # Укажите ваш API-ключ от OpenWeatherMap
+        city = "Ульяновск"
+        base_url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&lang=ru"
+
+        try:
+            response = requests.get(base_url)
+            weather_data = response.json()
+
+            if response.status_code == 200 and weather_data.get("cod") != "404":
+                temp = round(weather_data["main"]["temp"] - 273.15, 1)  # Перевод температуры в градусы Цельсия
+                weather_desc = weather_data["weather"][0]["description"]
+                humidity = weather_data["main"]["humidity"]
+                pressure = weather_data["main"]["pressure"]
+
+                return (f"Погода в {city}:\n"
+                        f"Температура: {temp}°C\n"
+                        f"Описание: {weather_desc}\n"
+                        f"Влажность: {humidity}%\n"
+                        f"Давление: {pressure} hPa")
+            else:
+                return "Не удалось получить данные о погоде."
+        except Exception as e:
+            return f"Ошибка получения данных: {str(e)}"
+
+
+# Настройки приложения
+'''Настройки самого приложение'''
 
 class Application(tk.Tk):
     def __init__(self):
@@ -38,19 +68,19 @@ class Application(tk.Tk):
         self.title("Programms")
         self.geometry("600x400")
         self.name = ""
-        self.folder_path = "C:/Users/error/Desktop/borisov" 
-        self.configure(bg="#7B68EE")  
+        self.folder_path = "C:/Users/error/Desktop/borisov"
+        self.configure(bg="#7B68EE")
 
-       
         self.main_frame = tk.Frame(self, bg="#7B68EE")
         self.main_frame.pack(fill="both", expand=True)
 
         self.init_name_screen()
 
 
-#ввод имени
-    def init_name_screen(self):
+    '''Операция с выводом на экран'''
 
+# Ввод имени
+    def init_name_screen(self):
         self.clear_frame()
         label = tk.Label(self.main_frame, text="Как тебя зовут?", bg="#7B68EE", fg="white", font=("Arial", 16))
         label.pack(pady=20)
@@ -69,18 +99,23 @@ class Application(tk.Tk):
         self.init_main_menu()
 
 
-#главный экран
+    '''Главный экрна приложеня'''
+
+# Главный экран
     def init_main_menu(self):
         self.clear_frame()
         label = tk.Label(self.main_frame, text=f"Привет, {self.name}!", bg="#c40e41", fg="white", font=("Arial", 16))
         label.pack(pady=20)
+
+        '''Все функции приложения'''
 
         programs = [
             ("Программа 1: Ввод имени", self.run_program1),
             ("Программа 2: Математические операции", self.run_program2),
             ("Программа 3: Список случайных чисел", self.run_program3),
             ("Программа 4: Работа с файлами", self.run_program4),
-            ("Что сегодня в кинотеатре?", self.run_program5)
+            ("Что сегодня в кинотеатре?", self.run_program5),
+            ("Погода в Ульяновске", self.run_weather_program)  # Добавлен пункт для погоды
         ]
 
         for text, command in programs:
@@ -100,7 +135,9 @@ class Application(tk.Tk):
         button_back.pack(pady=10)
 
 
-#программа вторая
+# Программа 2: Математические операции
+
+    '''Программа с мат.операциями'''
 
     def run_program2(self):
         self.clear_frame()
@@ -119,6 +156,8 @@ class Application(tk.Tk):
 
         result_label = tk.Label(self.main_frame, bg="#c2baf7", fg="white", font=("Arial", 14))
         result_label.pack(pady=10)
+
+        '''Функция подсчета с мат.операциями'''
 
         def calculate():
             try:
@@ -152,11 +191,14 @@ class Application(tk.Tk):
         button_back.pack(pady=10)
 
 
+# Программа 3: Список случайных чисел
 
-#третья прога
+    '''Программа со случаными числами'''
 
     def run_program3(self):
         self.clear_frame()
+
+        '''Список что умеет программа'''
 
         random_numbers = [random.randint(0, 20) for _ in range(10)]
         sorted_numbers = sorted(random_numbers)
@@ -166,48 +208,55 @@ class Application(tk.Tk):
 
         tk.Label(self.main_frame, text=f"Список случайных чисел: {random_numbers}", bg="#c40e41", fg="white", font=("Arial", 12)).pack(pady=5)
         tk.Label(self.main_frame, text=f"Сортировка: {sorted_numbers}", bg="#c40e41", fg="white", font=("Arial", 12)).pack(pady=5)
-        tk.Label(self.main_frame, text=f"Минимум: {min_number}, Максимум: {max_number}", bg="#c40e41", fg="white", font=("Arial", 12)).pack(pady=5)
+        tk.Label(self.main_frame, text=f"Минимум: {min_number}", bg="#c40e41", fg="white", font=("Arial", 12)).pack(pady=5)
+        tk.Label(self.main_frame, text=f"Максимум: {max_number}", bg="#c40e41", fg="white", font=("Arial", 12)).pack(pady=5)
         tk.Label(self.main_frame, text=f"Сумма: {sum_numbers}", bg="#c40e41", fg="white", font=("Arial", 12)).pack(pady=5)
 
         button_back = tk.Button(self.main_frame, text="Назад", bg="#c40e41", fg="white", command=self.init_main_menu, font=("Arial", 14))
         button_back.pack(pady=10)
 
 
-#прога 4
+# Программа 4: Работа с файлами
+
+    '''Программа работа с файлами'''
 
     def run_program4(self):
         self.clear_frame()
 
-        def create_file(filename):
-            with open(os.path.join(self.folder_path, filename), 'w') as file:
-                for _ in range(10):
-                    file.write(f"{random.randint(1, 10)}\n")
-            messagebox.showinfo("Успех", f"Файл '{filename}' создан.")
+        '''Сохранение'''
 
-        def select_file():
-            filepath = filedialog.askopenfilename(initialdir=self.folder_path, title="Выберите файл",
-                                                  filetypes=(("C:/Users/Angelina/Desktop/borisov", "*.txt"), ("All files", "*.*")))
-            if filepath:
-                with open(filepath, 'r') as file:
-                    numbers = [int(line.strip()) for line in file]
-                avg = sum(numbers) / len(numbers)
-                messagebox.showinfo("Среднее значение", f"Среднее значение чисел: {avg}")
-            else:
-                messagebox.showwarning("Ошибка", "Файл не выбран.")
+        def save_to_file():
+            text = text_area.get("1.0", "end-1c")
+            with open(os.path.join(self.folder_path, "output.txt"), "w") as file:
+                file.write(text)
+            messagebox.showinfo("Готово", "Текст сохранён в output.txt")
 
-        button1 = tk.Button(self.main_frame, text="Создать файл", bg="#c40e41", fg="white", command=lambda: create_file("file1.txt"),
-                            font=("Arial", 14))
-        button1.pack(pady=10)
+            '''Открытие'''
 
-        button2 = tk.Button(self.main_frame, text="Выбрать файл", bg="#c40e41", fg="white", command=select_file, font=("Arial", 14))
-        button2.pack(pady=10)
+        def open_file():
+            file_path = filedialog.askopenfilename(defaultextension=".txt", filetypes=[("Текстовые файлы", "*.txt")])
+            if file_path:
+                with open(file_path, "r") as file:
+                    content = file.read()
+                text_area.delete("1.0", "end")
+                text_area.insert("1.0", content)
+
+        text_area = tk.Text(self.main_frame, width=50, height=10, font=("Arial", 12))
+        text_area.pack(pady=10)
+
+        button_save = tk.Button(self.main_frame, text="Сохранить в файл", bg="#c40e41", fg="white", command=save_to_file, font=("Arial", 14))
+        button_save.pack(pady=5)
+
+        button_open = tk.Button(self.main_frame, text="Открыть файл", bg="#c40e41", fg="white", command=open_file, font=("Arial", 14))
+        button_open.pack(pady=5)
 
         button_back = tk.Button(self.main_frame, text="Назад", bg="#c40e41", fg="white", command=self.init_main_menu, font=("Arial", 14))
         button_back.pack(pady=10)
 
+# Программа 5: Кинотеатр
 
-#конотеатр 
-  
+    '''Кинотеатр'''
+
     def run_program5(self):
         self.clear_frame()
 
@@ -226,9 +275,27 @@ class Application(tk.Tk):
         button_back = tk.Button(self.main_frame, text="Назад", bg="#c40e41", fg="white", command=self.init_main_menu, font=("Arial", 14))
         button_back.pack(pady=10)
 
+# Программа 6: Погода
 
+
+    '''Самая функция погоды'''
+
+    def run_weather_program(self):
+        self.clear_frame()
+
+        session = Session(nameFilms="Терминатор", yerFilm=1985, cena=180, date="01-12-2024", start_time="21:00")
+        weather_info = session.get_weather()
+
+        label = tk.Label(self.main_frame, text=weather_info, bg="#c40e41", fg="white", font=("Arial", 14))
+        label.pack(pady=20)
+
+        button_back = tk.Button(self.main_frame, text="Назад", bg="#c40e41", fg="white", command=self.init_main_menu, font=("Arial", 14))
+        button_back.pack(pady=10)
+
+
+
+        '''Вызов всего приложения'''
 if __name__ == "__main__":
     app = Application()
     app.mainloop()
 
-    print('Программа закрыта')
